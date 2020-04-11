@@ -21,32 +21,58 @@ class MainActivity : AppCompatActivity() {
 
     private fun fakeApiRequest() {
 
-        val startTime = System.currentTimeMillis()
+//        val startTime = System.currentTimeMillis()
+//
+//        val proccessTime = CoroutineScope(Dispatchers.IO).launch {
+//            val job1 = launch {
+//                val time1 = measureTimeMillis {
+//                    println("debug: launching job1 in thread: ${Thread.currentThread().name} ")
+//                    val result1 = getFakeApi1()
+//                    setTextOnMainThread(result1)
+//                }
+//                println("debug: process job1 complete in $time1 ms")
+//            }
+//
+//            val job2 = launch {
+//                val time2 = measureTimeMillis {
+//                    println("debug: launching job2 in thread: ${Thread.currentThread().name} ")
+//                    val result2 = getFakeApi2()
+//                    setTextOnMainThread(result2)
+//                }
+//                println("debug: process job2 complete in $time2 ms")
+//            }
+//
+//
+//        }
+//        proccessTime.invokeOnCompletion {
+//            println("debug: Total time process in job 1 and job 2 ${System.currentTimeMillis()- startTime}")
+//        }
 
-        val proccessTime = CoroutineScope(Dispatchers.IO).launch {
-            val job1 = launch {
-                val time1 = measureTimeMillis {
-                    println("debug: launching job1 in thread: ${Thread.currentThread().name} ")
-                    val result1 = getFakeApi1()
-                    setTextOnMainThread(result1)
+
+        // Proses menggunakan async await
+        CoroutineScope(Dispatchers.IO).launch {
+            val timeProcess = measureTimeMillis {
+
+                //Penggunaan async selalu mengembalikan nilai Deferred
+                val result1 = async {
+                    println("debug: job 1 run in the ${Thread.currentThread().name}")
+                    getFakeApi1()
                 }
-                println("debug: process job1 complete in $time1 ms")
+
+                val result2 = async {
+                    println("debug: job 2 run in the ${Thread.currentThread().name}")
+                    getFakeApi2()
+                }
+
+                // Untuk mengambil nilai yang dikembalikan async (Deferred) anda harus menangkapnya dengan await()
+                setTextOnMainThread("Get data job1 : ${result1.await()}")
+                setTextOnMainThread("Get data job2 : ${result2.await()}")
             }
 
-            val job2 = launch {
-                val time2 = measureTimeMillis {
-                    println("debug: launching job2 in thread: ${Thread.currentThread().name} ")
-                    val result2 = getFakeApi2()
-                    setTextOnMainThread(result2)
-                }
-                println("debug: process job2 complete in $time2 ms")
-            }
-
+            println("debug: Total time process job1 and job 2 : $timeProcess")
 
         }
-        proccessTime.invokeOnCompletion {
-            println("debug: Total time process in job 1 and job 2 ${System.currentTimeMillis()- startTime}")
-        }
+
 
     }
 
